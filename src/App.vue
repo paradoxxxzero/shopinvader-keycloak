@@ -1,10 +1,25 @@
 <script setup>
-import Main from './components/Main.vue'
+import User from './components/User.vue'
+import Cart from './components/Cart.vue'
+import Actions from './components/Actions.vue'
+
+const props = defineProps({
+  auth: Boolean,
+  keycloak: Object,
+})
+
+
 </script>
 
 <template>
   <img class="logo" alt="Shopping cart" src="./assets/logo.svg" />
-  <Main />
+  <header>
+    <User :authUser="keycloak.tokenParsed" />
+  </header>
+  <section>
+    <Cart />
+    <Actions :auth="keycloak.authenticated" @login="keycloak.login" @logout="keycloak.logout" />
+  </section>
 </template>
 
 <style>
@@ -19,5 +34,9 @@ import Main from './components/Main.vue'
 .logo {
   width: 200px;
   margin: 0 auto;
+}
+section {
+  display: flex;
+  justify-content: space-evenly;
 }
 </style>

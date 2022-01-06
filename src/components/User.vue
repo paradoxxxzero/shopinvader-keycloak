@@ -1,13 +1,29 @@
 <script setup>
+import { computed } from "@vue/reactivity";
 
-const user = { name: "Anonymous" }
+
+const anonymousUser = {
+  name: "Anonymous",
+  email: "",
+  email_verified: false,
+  preferred_username: "anon"
+}
+
+const props = defineProps({
+  authUser: Object,
+})
+
+const user = computed(() => {
+  return props.authUser || anonymousUser;
+});
 
 </script>
 
 <template>
   <aside>
     <h2>User</h2>
-    <p>{{ user.name }}</p>
+    <p>{{ user.preferred_username }} ({{ user.name }})</p>
+    <p v-if="user.email">{{ user.email }}</p>
   </aside>
 </template>
 

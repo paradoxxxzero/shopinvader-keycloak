@@ -7,7 +7,7 @@ const items = [{ name: "product1", price: 10 }, { name: "product2", price: 20 }]
   <article>
     <h2>Cart</h2>
     <ul>
-      <li v-for="item in items" v-bind:key="item.name">{{ item.name }}: {{ item.price }}$</li>
+      <li v-for="item in items" :key="item.name">{{ item.name }}: {{ item.price }}$</li>
     </ul>
   </article>
 </template>
