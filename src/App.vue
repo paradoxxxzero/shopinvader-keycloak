@@ -4,21 +4,26 @@ import Cart from './components/Cart.vue'
 import Actions from './components/Actions.vue'
 
 const props = defineProps({
-  auth: Boolean,
   keycloak: Object,
 })
-
 
 </script>
 
 <template>
-  <img class="logo" alt="Shopping cart" src="./assets/logo.svg" />
+  <a href="/">
+    <img class="logo" alt="Shopping cart" src="./assets/logo.svg" />
+  </a>
   <header>
     <User :authUser="keycloak.tokenParsed" />
   </header>
   <section>
-    <Cart />
-    <Actions :auth="keycloak.authenticated" @login="keycloak.login" @logout="keycloak.logout" />
+    <Cart v-if="keycloak.authenticated" />
+    <Actions
+      :auth="keycloak.authenticated"
+      @login="keycloak.login"
+      @logout="keycloak.logout"
+      @signup="keycloak.register"
+    />
   </section>
 </template>
 

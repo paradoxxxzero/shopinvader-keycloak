@@ -13,7 +13,7 @@ const props = defineProps({
       <button v-if="auth">Add product</button>
       <button v-if="!auth" @click="$emit('login')">Login</button>
       <button v-if="auth" @click="$emit('logout')">Logout</button>
-      <button v-if="!auth">Sign up</button>
+      <button v-if="!auth" @click="$emit('signup')">Sign up</button>
     </div>
   </article>
 </template>
