@@ -9,6 +9,7 @@ const initOptions = {
 };
 
 const keycloak = Keycloak(initOptions);
+window.keycloak = keycloak;
 await keycloak.init({
   onLoad: "check-sso",
   silentCheckSsoRedirectUri: window.location.origin + "/sso.html",
