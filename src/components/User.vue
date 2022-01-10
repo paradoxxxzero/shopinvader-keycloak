@@ -1,6 +1,7 @@
 <script setup>
-import { computed } from "@vue/reactivity";
+import { computed, ref } from "@vue/reactivity";
 
+const address = ref("")
 
 const anonymousUser = {
   name: "Anonymous",
@@ -9,13 +10,22 @@ const anonymousUser = {
   preferred_username: "anon"
 }
 
-const props = defineProps({
-  authUser: Object,
+const {
+  user: userFromToken
+} = defineProps({
+  user: Object,
+  registering: Boolean,
 })
 
 const user = computed(() => {
-  return props.authUser || anonymousUser;
-});
+  return userFromToken || anonymousUser
+})
+
+const submit = () => {
+  console.log("submit", address.value)
+  // user creation in shopinvader
+  location.replace("/")
+}
 
 </script>
 
@@ -24,6 +34,10 @@ const user = computed(() => {
     <h2>User</h2>
     <p>{{ user.preferred_username }} ({{ user.name }})</p>
     <p v-if="user.email">{{ user.email }}</p>
+    <form v-if="registering" @submit="submit">
+      <input v-model="address" placeholder="address" />
+      <button type="submit">Register</button>
+    </form>
   </aside>
 </template>
 
