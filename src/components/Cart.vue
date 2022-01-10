@@ -1,46 +1,36 @@
 <script setup>
-const items = [{ name: "product1", price: 10 }, { name: "product2", price: 20 }]
 
 const props = defineProps({
-  websiteKey: String,
-  websiteUrl: String,
-  token: String,
+  cart: Object,
 })
 
-let cart = []
+const emit = defineEmits(["refresh", "clear"])
 
-const fetchCart = async () => {
-  const response = await fetch(props.websiteUrl + "cart/", {
-    method: "GET",
-    headers: {
-      "Website-Unique-Key": props.websiteKey,
-      "Authorization": `Bearer ${props.token}`,
-    }
-  })
-
-
-  if (response.status !== 200) {
-    console.error("Fail to fetch cart", response)
-  } else {
-    cart = await response.json()
-    console.log(cart)
-  }
-}
-fetchCart()
+emit("refresh")
 </script>
 
 <template>
   <article>
     <h2>Cart</h2>
     <ul>
-      <li v-for="item in items" :key="item.name">{{ item.name }}: {{ item.price }}$</li>
+      <li
+        v-for="item in cart.value.lines.items"
+        :key="item.id"
+      >{{ item.name }}: {{ item.qty }} x {{ item.amount.price }}$</li>
     </ul>
-    <button @click="fetchCart">Refresh</button>
+    <button @click="$emit('refresh')">Refresh</button>
+    <button @click="$emit('clear')">Clear</button>
   </article>
 </template>
 
 <style scoped>
 a {
   color: #42b983;
+}
+li {
+  margin: 16px;
+  padding: 4px;
+  list-style: none;
+  background: #fff8f8;
 }
 </style>

@@ -1,15 +1,22 @@
 <script setup>
 import User from './components/User.vue'
-import Cart from './components/Cart.vue'
+import CartService from './cart.js'
 import Actions from './components/Actions.vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import Cart from './components/Cart.vue'
 
 const { keycloak } = defineProps({
   keycloak: Object,
 })
 
-const websiteKey = ref("7f55d20526d3053edef00b8a15c7a64c9e4e827bb777ed9e7edc3a54d5c95f18")
-const websiteUrl = ref("http://noukies.localhost/shopinvader_jwt/")
+const websiteKey = ref(localStorage.getItem("websiteKey"))
+const websiteUrl = ref(localStorage.getItem("websiteUrl"))
+watch(websiteKey, (newValue) => {
+  localStorage.setItem("websiteKey", newValue)
+})
+watch(websiteUrl, (newValue) => {
+  localStorage.setItem("websiteUrl", newValue)
+})
 
 
 const login = () => {
@@ -28,9 +35,16 @@ const register = () => {
   })
 }
 
-// Use a real router instead
-const registering = ref(window.location.pathname == "/register")
+// Use a real service
+const cart = new CartService(websiteKey, websiteUrl, keycloak.token, keycloak.tokenParsed?.email)
+const refresh = cart.get.bind(cart)
+const addItem = cart.addItem.bind(cart)
+const clear = cart.clear.bind(cart)
 
+window.cart = cart
+
+// Use a real router instead
+const registering = ref(window.location.pathname == '/register')
 </script>
 
 <template>
@@ -38,16 +52,18 @@ const registering = ref(window.location.pathname == "/register")
     <img class="logo" alt="Shopping cart" src="./assets/logo.svg" />
   </a>
   <header>
-    <User :user="keycloak.tokenParsed" :registering="registering" />
-  </header>
-  <section v-if="!registering">
-    <Cart
-      v-if="keycloak.authenticated"
-      :websiteKey="websiteKey"
-      :websiteUrl="websiteUrl"
-      :token="keycloak.token"
+    <User
+      :auth="keycloak.authenticated"
+      :user="keycloak.tokenParsed"
+      :registering="registering"
+      @login="login"
+      @logout="logout"
+      @register="register"
     />
-    <Actions :auth="keycloak.authenticated" @login="login" @logout="logout" @signup="register" />
+  </header>
+  <section v-if="!registering && keycloak.authenticated">
+    <Cart :cart="cart.cart" @refresh="refresh" @clear="clear" />
+    <Actions @add-item="addItem" />
   </section>
   <footer>
     <label>
@@ -56,7 +72,10 @@ const registering = ref(window.location.pathname == "/register")
     </label>
     <label>
       shopinvader url
-      <input v-model="websiteUrl" />
+      <input
+        v-model="websiteUrl"
+        placeholder="http://localhost:8069/shopinvader_jwt/"
+      />
     </label>
   </footer>
 </template>

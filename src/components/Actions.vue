@@ -1,8 +1,17 @@
 <script setup>
+import { ref } from "@vue/reactivity"
 
-const props = defineProps({
-  auth: Boolean,
-})
+const productId = ref(null)
+const qty = ref(null)
+
+const emit = defineEmits(["add-item"])
+
+const addProduct = () => {
+  emit('add-item', {
+    productId: productId.value,
+    qty: qty.value,
+  })
+}
 
 </script>
 
@@ -10,10 +19,11 @@ const props = defineProps({
   <article>
     <h2>Actions</h2>
     <div>
-      <button v-if="auth">Add product</button>
-      <button v-if="!auth" @click="$emit('login')">Login</button>
-      <button v-if="auth" @click="$emit('logout')">Logout</button>
-      <button v-if="!auth" @click="$emit('signup')">Sign up</button>
+      <form>
+        <input v-model="productId" type="number" placeholder="product id" />
+        <input v-model="qty" type="number" placeholder="qty" />
+        <button type="button" @click="addProduct">Add product</button>
+      </form>
     </div>
   </article>
 </template>
@@ -27,5 +37,9 @@ div {
 button {
   margin: 8px;
   color: #42b983;
+}
+form {
+  display: flex;
+  flex-direction: column;
 }
 </style>
