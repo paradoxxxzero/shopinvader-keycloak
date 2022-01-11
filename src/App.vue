@@ -48,6 +48,7 @@ window.customer = customer
 
 const refresh = cart.get.bind(cart)
 const addItem = cart.addItem.bind(cart)
+const removeItem = cart.removeItem.bind(cart)
 const clear = cart.clear.bind(cart)
 
 </script>
@@ -66,7 +67,7 @@ const clear = cart.clear.bind(cart)
     />
   </header>
   <section v-if="!registering && keycloak.authenticated">
-    <Cart :cart="cart.cart" @refresh="refresh" @clear="clear" />
+    <Cart :cart="cart.cart" @refresh="refresh" @clear="clear" @remove-item="removeItem" />
     <Actions @add-item="addItem" />
   </section>
   <footer>

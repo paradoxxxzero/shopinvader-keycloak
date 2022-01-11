@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import ShopinvaderService from './base'
 
-const INITIAL_CART = { lines: { items: [] } }
+const INITIAL_CART = { lines: { items: [] }, amount: { total: 0 } }
 
 export default class CartService extends ShopinvaderService {
   constructor(websiteKey, websiteUrl, keycloak) {
@@ -31,6 +31,15 @@ export default class CartService extends ShopinvaderService {
       JSON.stringify({
         product_id: productId,
         item_qty: qty,
+      })
+    )
+  }
+  async removeItem(productId) {
+    await this.sync(
+      'POST',
+      'delete_item',
+      JSON.stringify({
+        item_id: productId,
       })
     )
   }

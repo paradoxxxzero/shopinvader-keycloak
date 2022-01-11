@@ -4,7 +4,7 @@ const props = defineProps({
   cart: Object,
 })
 
-const emit = defineEmits(["refresh", "clear"])
+const emit = defineEmits(["remove-item", "refresh", "clear"])
 
 emit("refresh")
 </script>
@@ -13,10 +13,13 @@ emit("refresh")
   <article>
     <h2>Cart</h2>
     <ul>
-      <li
-        v-for="item in cart.value.lines.items"
-        :key="item.id"
-      >{{ item.name }}: {{ item.qty }} x {{ item.amount.price }}$</li>
+      <li v-for="item in cart.value.lines.items" :key="item.id">
+        {{ item.name }}: {{ item.qty }} x {{ item.amount.price }}$
+        <button
+          @click="$emit('remove-item', item.id)"
+        >X</button>
+      </li>
+      <li>Total: {{ cart.value.amount.total }}$</li>
     </ul>
     <button @click="$emit('refresh')">Refresh</button>
     <button @click="$emit('clear')">Clear</button>
