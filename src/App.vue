@@ -1,9 +1,10 @@
 <script setup>
 import User from './components/User.vue'
-import CartService from './cart.js'
+import CartService from './services/cart.js'
 import Actions from './components/Actions.vue'
 import { ref, watch } from 'vue'
 import Cart from './components/Cart.vue'
+import CustomerService from './services/customer';
 
 const { keycloak } = defineProps({
   keycloak: Object,
@@ -35,16 +36,20 @@ const register = () => {
   })
 }
 
+// Use a real router instead
+const registering = ref(window.location.pathname == '/register')
+
 // Use a real service
-const cart = new CartService(websiteKey, websiteUrl, keycloak.token, keycloak.tokenParsed?.email)
+const cart = new CartService(websiteKey, websiteUrl, keycloak)
+const customer = new CustomerService(websiteKey, websiteUrl, keycloak, registering.value)
+
+window.cart = cart
+window.customer = customer
+
 const refresh = cart.get.bind(cart)
 const addItem = cart.addItem.bind(cart)
 const clear = cart.clear.bind(cart)
 
-window.cart = cart
-
-// Use a real router instead
-const registering = ref(window.location.pathname == '/register')
 </script>
 
 <template>
@@ -53,8 +58,7 @@ const registering = ref(window.location.pathname == '/register')
   </a>
   <header>
     <User
-      :auth="keycloak.authenticated"
-      :user="keycloak.tokenParsed"
+      :user="customer.user"
       :registering="registering"
       @login="login"
       @logout="logout"
