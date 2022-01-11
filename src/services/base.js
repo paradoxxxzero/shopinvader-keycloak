@@ -6,6 +6,11 @@ export default class ShopinvaderService {
   }
 
   async fetch(method, service, endpoint = '', body = undefined) {
+    try {
+      await this.keycloak.updateToken(30)
+    } catch (e) {
+      console.error('Unable to refresh Token', e)
+    }
     const response = await fetch(
       this.websiteUrl.value + [service, endpoint].join('/'),
       {
