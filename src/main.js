@@ -10,11 +10,13 @@ const initOptions = {
 
 const keycloak = Keycloak(initOptions)
 window.keycloak = keycloak
-await keycloak.init({
-  onLoad: 'check-sso',
-  silentCheckSsoRedirectUri: window.location.origin + '/sso.html',
-})
+keycloak
+  .init({
+    onLoad: 'check-sso',
+    silentCheckSsoRedirectUri: window.location.origin + '/sso.html',
+  })
+  .then(() => {
+    const app = createApp(App, { keycloak })
 
-const app = createApp(App, { keycloak })
-
-app.mount('#app')
+    app.mount('#app')
+  })
