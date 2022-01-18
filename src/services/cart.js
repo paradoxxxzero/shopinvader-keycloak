@@ -4,8 +4,8 @@ import ShopinvaderService from './base'
 const INITIAL_CART = { lines: { items: [] }, amount: { total: 0 } }
 
 export default class CartService extends ShopinvaderService {
-  constructor(websiteKey, websiteUrl, keycloak) {
-    super(websiteKey, websiteUrl, keycloak)
+  constructor(keycloak) {
+    super(keycloak)
     this.cart = ref(INITIAL_CART)
   }
 

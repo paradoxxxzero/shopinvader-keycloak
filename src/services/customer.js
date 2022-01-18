@@ -8,8 +8,8 @@ const ANONYMOUS_USER = Object.freeze({
 })
 
 export default class CustomerService extends ShopinvaderService {
-  constructor(websiteKey, websiteUrl, keycloak, registering) {
-    super(websiteKey, websiteUrl, keycloak)
+  constructor(keycloak, registering) {
+    super(keycloak)
     this.user = ref(
       registering
         ? {

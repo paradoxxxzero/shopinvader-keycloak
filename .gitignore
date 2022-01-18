@@ -3,4 +3,5 @@ node_modules
 dist
 dist-ssr
 *.local
-secrets.json
+/secrets.json
+/config.json

@@ -1,7 +1,9 @@
+import config from '../../config.json'
+
+const { shopinvader_url, shopinvader_website_unique_key } = config
+
 export default class ShopinvaderService {
-  constructor(websiteKey, websiteUrl, keycloak) {
-    this.websiteKey = websiteKey
-    this.websiteUrl = websiteUrl
+  constructor(keycloak) {
     this.keycloak = keycloak
   }
 
@@ -12,12 +14,12 @@ export default class ShopinvaderService {
       console.error('Unable to refresh Token', e)
     }
     const response = await fetch(
-      this.websiteUrl.value + [service, endpoint].join('/'),
+      shopinvader_url + [service, endpoint].join('/'),
       {
         method,
         headers: {
           'Content-Type': body ? 'application/json' : undefined,
-          'Website-Unique-Key': this.websiteKey.value,
+          'Website-Unique-Key': shopinvader_website_unique_key,
           Authorization: `Bearer ${this.token}`,
           'Sess-Cart-Id':
             localStorage.getItem(`shopinvaderCart_${this.email}`) || '0',

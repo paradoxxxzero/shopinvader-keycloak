@@ -10,15 +10,6 @@ const { keycloak } = defineProps({
   keycloak: Object,
 })
 
-const websiteKey = ref(localStorage.getItem("websiteKey"))
-const websiteUrl = ref(localStorage.getItem("websiteUrl"))
-watch(websiteKey, (newValue) => {
-  localStorage.setItem("websiteKey", newValue)
-})
-watch(websiteUrl, (newValue) => {
-  localStorage.setItem("websiteUrl", newValue)
-})
-
 
 const login = () => {
   // After login we redirect to main page
@@ -40,8 +31,8 @@ const register = () => {
 const registering = ref(window.location.pathname == '/register')
 
 // Use a real service
-const cart = new CartService(websiteKey, websiteUrl, keycloak)
-const customer = new CustomerService(websiteKey, websiteUrl, keycloak, registering.value)
+const cart = new CartService(keycloak)
+const customer = new CustomerService(keycloak, registering.value)
 
 window.cart = cart
 window.customer = customer
@@ -71,17 +62,6 @@ const clear = cart.clear.bind(cart)
     <Actions @add-item="addItem" />
   </section>
   <footer>
-    <label>
-      shopinvader website unique key
-      <input v-model="websiteKey" />
-    </label>
-    <label>
-      shopinvader url
-      <input
-        v-model="websiteUrl"
-        placeholder="http://localhost:8069/shopinvader_jwt/"
-      />
-    </label>
     <code>{{ keycloak?.tokenParsed }}</code>
   </footer>
 </template>
