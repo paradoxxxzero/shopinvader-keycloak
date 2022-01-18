@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "concurrently --kill-others \"node ./anonymous_authenticator/serve.mjs\" vite",
+    "serve-anonymous-authenticator": "node ./anonymous_authenticator/serve.mjs",
+    "dev": "concurrently --kill-others \"yarn serve-anonymous-authenticator\" vite",
     "build": "vite build",
     "preview": "vite preview"
   },
