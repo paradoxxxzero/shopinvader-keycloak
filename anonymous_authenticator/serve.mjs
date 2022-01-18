@@ -56,7 +56,7 @@ app.get('/auth', async (req, res) => {
       access_token,
     })
 
-    const { body: authInfos } = await call('protocol/openid-connect/token', {
+    const { headers } = await call('protocol/openid-connect/token', {
       method: 'POST',
       data: {
         grant_type: 'password',
@@ -68,7 +68,8 @@ app.get('/auth', async (req, res) => {
       admin: false,
     })
 
-    res.send(JSON.stringify({ success: true, ...authInfos }))
+    res.set(headers)
+    res.redirect(req.query.redirect_uri)
   } catch (e) {
     console.error(e)
     res.send('Error')

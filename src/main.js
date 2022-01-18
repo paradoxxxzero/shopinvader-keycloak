@@ -5,6 +5,7 @@ import config from '../config.json'
 
 const keycloak = Keycloak(config.keycloak)
 window.keycloak = keycloak
+const uri = new URL(window.location.href)
 keycloak
   .init({
     onLoad: 'check-sso',
@@ -13,26 +14,17 @@ keycloak
   })
   .then(async auth => {
     if (!auth) {
-      let access_token = localStorage.getItem('anonymous_access_token')
-      let refresh_token = localStorage.getItem('anonymous_refresh_token')
-      if (!access_token || !refresh_token) {
-        const response = await fetch(config.anonymous_authenticator)
-        ;({ access_token, refresh_token } = await response.json())
-
-        // Is it really safe?
-        localStorage.setItem('anonymous_access_token', access_token)
-        localStorage.setItem('anonymous_refresh_token', refresh_token)
+      if (uri.searchParams.get('anon')) {
+        throw new Error("Can't get anon auth")
       }
-
-      const auth = await keycloak.init({
-        token: access_token,
-        refreshToken: refresh_token,
-        checkLoginIframe: false,
-      })
-      if (!auth) {
-        console.error("Couldn't get auth")
-      }
+      uri.searchParams.append('anon', true)
+      location.replace(
+        config.anonymous_authenticator +
+          '?redirect_uri=' +
+          encodeURIComponent(uri.toString())
+      )
     }
+
     const app = createApp(App, { keycloak })
 
     app.mount('#app')
