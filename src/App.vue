@@ -82,6 +82,7 @@ const clear = cart.clear.bind(cart)
         placeholder="http://localhost:8069/shopinvader_jwt/"
       />
     </label>
+    <code>{{ keycloak?.tokenParsed }}</code>
   </footer>
 </template>
 

@@ -24,9 +24,9 @@ const submit = () => {
 <template>
   <aside>
     <h2>User</h2>
-    <p v-if="user.value.email">{{ user.value.email }}</p>
 
-    <form>
+    <p v-if="user.value.email">{{ user.value.email }}</p>
+    <form v-if="!user.value.is_anon">
       <fieldset :disabled="!registering">
         <label>
           Name

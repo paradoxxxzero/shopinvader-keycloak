@@ -27,6 +27,7 @@ export default class CustomerService extends ShopinvaderService {
 
     if (response) {
       this.user.value = response.data
+      this.user.value.is_anon = this.email === 'anonymous@example.com'
     }
   }
 
