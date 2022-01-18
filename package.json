@@ -12,7 +12,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "keycloak-js": "^16.1.0",
-    "vue": "^3.2.25"
+    "vue": "^3.2.25",
+    "yargs": "^17.3.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.0.0",

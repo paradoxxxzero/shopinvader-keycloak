@@ -2,9 +2,26 @@ import crypto from 'crypto'
 import express from 'express'
 import { auth, call, KEYCLOAK_CLIENT_ID } from './utils.mjs'
 import cors from 'cors'
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
+
+const args = yargs(hideBin(process.argv))
+  .option('port', {
+    alias: 'p',
+    default: 3001,
+    type: 'number',
+    description: 'Port to listen on',
+  })
+  .option('host', {
+    alias: 'h',
+    default: 'localhost',
+    type: 'string',
+    description: 'Host to listen on',
+  })
+  .help()
+  .parse()
 
 const app = express()
-const port = 3001
 
 app.use(cors())
 
@@ -58,6 +75,6 @@ app.get('/auth', async (req, res) => {
   }
 })
 
-app.listen(port, () => {
-  console.log(`Middleware listening at http://localhost:${port}`)
+app.listen(args.port, args.host, () => {
+  console.log(`Middleware listening at http://${args.host}:${args.port}`)
 })

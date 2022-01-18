@@ -1,0 +1,8 @@
+{
+  "keycloak": {
+    "url": "https://auth.noukies.akretion.com/auth",
+    "realm": "shopinvader-keycloak-test",
+    "clientId": "shopinvader-test"
+  },
+  "anonymous_authenticator": "http://localhost:3001/auth"
+}
