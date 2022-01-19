@@ -25,14 +25,18 @@ const app = express()
 
 app.use(cors())
 
-app.get('/auth', async (req, res) => {
+app.get('/*', async (req, res) => {
+  if (!req.query.redirect_uri) {
+    return res.send('Missing redirect_uri')
+  }
   try {
     const access_token = await auth()
 
     const email = `anon-${crypto.randomBytes(32).toString('hex')}@example.com`
     console.log(`Creating anonymous user ${email}`)
     const password = crypto.randomBytes(32).toString('hex')
-    await call('users', {
+    await call({
+      ep: 'users',
       method: 'POST',
       data: {
         email,
@@ -51,28 +55,55 @@ app.get('/auth', async (req, res) => {
 
     const {
       body: [{ id }],
-    } = await call('users', {
+    } = await call({
+      ep: 'users',
       data: { email, exact: true },
       access_token,
     })
 
-    const { headers } = await call('protocol/openid-connect/token', {
+    // Initiate an authorize flow
+    const state = crypto.randomUUID()
+    const nonce = crypto.randomUUID()
+
+    const {
+      body: html,
+      headers: { 'set-cookie': cookies },
+    } = await call({
+      ep: 'protocol/openid-connect/auth',
       method: 'POST',
       data: {
-        grant_type: 'password',
-        username: email,
-        password,
         client_id: KEYCLOAK_CLIENT_ID,
+        redirect_uri: req.query.redirect_uri,
+        state,
+        response_mode: 'fragment',
+        response_type: 'code',
+        scope: 'openid',
+        nonce,
       },
       type: 'form',
       admin: false,
     })
+    const url = html
+      .match(/<form .* action="(.+)" method="post">/)[1]
+      .replace(/&amp;/g, '&')
 
-    res.set(headers)
-    res.redirect(req.query.redirect_uri)
+    const rv = await call({
+      url,
+      method: 'POST',
+      data: {
+        username: email,
+        password,
+        credentialId: '',
+      },
+      type: 'form',
+      admin: false,
+      cookies: cookies.map(c => c.split(';')[0]).join('; '),
+    })
+    res.set(rv.headers)
+    res.redirect(rv.headers.location)
   } catch (e) {
     console.error(e)
-    res.send('Error')
+    res.send('Error ' + JSON.stringify(e))
   }
 })
 

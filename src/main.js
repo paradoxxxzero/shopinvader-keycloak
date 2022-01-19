@@ -20,6 +20,7 @@ keycloak
       uri.searchParams.append('anon', true)
       location.replace(
         config.anonymous_authenticator +
+          '/auth/realms/shopinvader-keycloak-test/authorize-guest' +
           '?redirect_uri=' +
           encodeURIComponent(uri.toString())
       )

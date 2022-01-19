@@ -4,7 +4,7 @@
     "realm": "my-realm",
     "clientId": "client"
   },
-  "anonymous_authenticator": "http://localhost:3001/auth",
+  "anonymous_authenticator": "http://localhost:3001",
   "shopinvader_url": "http://localhost:8069/shopinvader_jwt/",
   "shopinvader_website_unique_key": "xxxxxxxxxxxx"
 }

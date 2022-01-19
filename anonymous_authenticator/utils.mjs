@@ -10,7 +10,8 @@ export const {
 
 export const auth = async () =>
   (
-    await call('protocol/openid-connect/token', {
+    await call({
+      ep: 'protocol/openid-connect/token',
       method: 'POST',
       data: {
         grant_type: 'client_credentials',
@@ -23,20 +24,22 @@ export const auth = async () =>
     })
   ).body.access_token
 
-export const call = (
+export const call = ({
   ep,
-  {
-    method = 'GET',
-    data = {},
-    type = 'json',
-    access_token,
-    admin = true,
-    realm = 'shopinvader-keycloak-test',
-  }
-) =>
+  url,
+  method = 'GET',
+  data = {},
+  type = 'json',
+  access_token,
+  admin = true,
+  realm = 'shopinvader-keycloak-test',
+  cookies = null,
+  debug = false,
+}) =>
   new Promise((resolve, reject) => {
-    const url = new URL(
-      `${KEYCLOAK_API}/auth/${admin ? 'admin/' : ''}realms/${realm}/${ep}`
+    url = new URL(
+      url ||
+        `${KEYCLOAK_API}/auth/${admin ? 'admin/' : ''}realms/${realm}/${ep}`
     )
     const body =
       type === 'json' && method !== 'GET'
@@ -47,7 +50,7 @@ export const call = (
     const options = {
       hostname: url.hostname,
       port: 443,
-      path: url.pathname + (method === 'GET' && body ? `?${body}` : ''),
+      path: url.pathname + (method === 'GET' && body ? `?${body}` : url.search),
       method,
       headers: {
         ...(access_token ? { Authorization: `Bearer ${access_token}` } : {}),
@@ -60,9 +63,10 @@ export const call = (
                   : 'application/json',
               'Content-Length': body.length,
             }),
+        ...(cookies ? { Cookie: cookies } : {}),
       },
     }
-    // console.log(options, body)
+    debug && console.log(options, body)
     const req = https.request(options, res => {
       res.setEncoding('utf8')
 
@@ -70,9 +74,14 @@ export const call = (
 
       res.on('data', chunk => (responseBody = responseBody + chunk))
       res.on('end', function () {
-        const parsedBody = responseBody ? JSON.parse(responseBody + '') : null
+        debug && console.log(res.headers, responseBody)
+        const parsedBody =
+          res.headers['content-type']?.startsWith('application/json') &&
+          responseBody
+            ? JSON.parse(responseBody + '')
+            : responseBody
 
-        res.statusCode < 200 || res.statusCode >= 300
+        res.statusCode < 200 || res.statusCode >= 400
           ? reject({
               status: res.statusCode,
               body: parsedBody,
