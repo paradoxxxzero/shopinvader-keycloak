@@ -32,7 +32,7 @@ export const call = ({
   type = 'json',
   access_token,
   admin = true,
-  realm = 'shopinvader-keycloak-test',
+  realm = KEYCLOAK_REALM,
   cookies = null,
   debug = false,
 }) =>
