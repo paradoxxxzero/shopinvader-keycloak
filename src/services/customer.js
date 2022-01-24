@@ -4,7 +4,6 @@ import ShopinvaderService from './base'
 const ANONYMOUS_USER = Object.freeze({
   name: 'Anonymous',
   email: '',
-  is_anon: true,
 })
 
 export default class CustomerService extends ShopinvaderService {
@@ -14,7 +13,6 @@ export default class CustomerService extends ShopinvaderService {
       registering
         ? {
             email: this.email,
-            is_anon: false,
           }
         : ANONYMOUS_USER
     )
@@ -27,7 +25,6 @@ export default class CustomerService extends ShopinvaderService {
 
     if (response) {
       this.user.value = response.data
-      this.user.value.is_anon = this.email === 'anonymous@example.com'
     }
   }
 

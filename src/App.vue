@@ -6,24 +6,26 @@ import { ref, watch } from 'vue'
 import Cart from './components/Cart.vue'
 import CustomerService from './services/customer';
 
-const { keycloak, keycloakGuest } = defineProps({
-  keycloak: Object,
-  keycloakGuest: Object,
+const { keycloaks } = defineProps({
+  keycloaks: Object,
 })
-
 
 const login = () => {
   // After login we redirect to main page
-  keycloak.login()
+  keycloaks.auth.login()
 }
 const logout = () => {
   // After logout we redirect to main page
-  keycloak.logout()
+  keycloaks.auth.logout()
+}
+const clearGuest = () => {
+  // After logout we redirect to main page
+  keycloaks.guest.logout()
 }
 
 const register = () => {
   // After register we redirect to the registration page of shopinvader
-  keycloak.register({
+  keycloaks.auth.register({
     redirectUri: `${window.location.origin}/register`,
   })
 }
@@ -32,8 +34,8 @@ const register = () => {
 const registering = ref(window.location.pathname == '/register')
 
 // Use a real service
-const cart = new CartService(keycloak)
-const customer = new CustomerService(keycloak, registering.value)
+const cart = new CartService(keycloaks)
+const customer = new CustomerService(keycloaks, registering.value)
 
 window.cart = cart
 window.customer = customer
@@ -51,26 +53,27 @@ const clear = cart.clear.bind(cart)
   </a>
   <header>
     <User
-      :user="customer.user"
+      :customerService="customer"
       :registering="registering"
       @login="login"
       @logout="logout"
       @register="register"
     />
   </header>
-  <section v-if="!registering && keycloak.authenticated">
-    <Cart :cart="cart.cart" @refresh="refresh" @clear="clear" @remove-item="removeItem" />
+  <section v-if="!registering">
+    <Cart :cartService="cart" @refresh="refresh" @clear="clear" @remove-item="removeItem" />
     <Actions @add-item="addItem" />
   </section>
   <footer>
     <p>
       Auth:
-      <code>{{ keycloak?.tokenParsed || "NULL" }}</code>
+      <code>{{ keycloaks.auth.tokenParsed || "NULL" }}</code>
     </p>
     <p>
       Guest:
-      <code>{{ keycloakGuest?.tokenParsed || "NULL" }}</code>
+      <code>{{ keycloaks.guest.tokenParsed || "NULL" }}</code>
     </p>
+    <button @click="clearGuest" v-if="keycloaks.guest.authenticated">Clear guest</button>
   </footer>
 </template>
 

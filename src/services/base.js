@@ -1,15 +1,27 @@
 import config from '../../config.json'
+import { keycloak } from 'keycloak-js'
 
 const { url, website_unique_key } = config.shopinvader
 
 export default class ShopinvaderService {
-  constructor(keycloak) {
-    this.keycloak = keycloak
+  constructor(keycloaks) {
+    this.keycloaks = keycloaks
   }
 
-  async fetch(method, service, endpoint = '', body = undefined) {
+  async fetch(
+    method,
+    service,
+    endpoint = '',
+    body = undefined,
+    allowAnonymous = false
+  ) {
+    if (this.isGuest && !allowAnonymous) {
+      return
+    }
+    const keycloak = this.isGuest ? this.keycloaks.guest : this.keycloaks.auth
+
     try {
-      await this.keycloak.updateToken(30)
+      await keycloak.updateToken(30)
     } catch (e) {
       console.error('Unable to refresh Token', e)
     }
@@ -18,7 +30,7 @@ export default class ShopinvaderService {
       headers: {
         'Content-Type': body ? 'application/json' : undefined,
         'Website-Unique-Key': website_unique_key,
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${keycloak.token}`,
         'Sess-Cart-Id':
           localStorage.getItem(`shopinvaderCart_${this.email}`) || '0',
       },
@@ -33,10 +45,12 @@ export default class ShopinvaderService {
   }
 
   get email() {
-    return this.keycloak.tokenParsed?.email
+    return this.isGuest
+      ? this.keycloaks.guest?.tokenParsed?.email
+      : this.keycloaks.auth?.tokenParsed?.email
   }
 
-  get token() {
-    return this.keycloak.token
+  get isGuest() {
+    return !this.keycloaks.auth?.authenticated
   }
 }

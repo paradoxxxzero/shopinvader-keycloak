@@ -4,13 +4,13 @@ import ShopinvaderService from './base'
 const INITIAL_CART = { lines: { items: [] }, amount: { total: 0 } }
 
 export default class CartService extends ShopinvaderService {
-  constructor(keycloak) {
-    super(keycloak)
+  constructor(keycloaks) {
+    super(keycloaks)
     this.cart = ref(INITIAL_CART)
   }
 
   async sync(method, endpoint = '', body = undefined) {
-    const response = await this.fetch(method, 'cart', endpoint, body)
+    const response = await this.fetch(method, 'cart', endpoint, body, true)
 
     if (response) {
       localStorage.setItem(`shopinvaderCart_${this.email}`, response.data.id)

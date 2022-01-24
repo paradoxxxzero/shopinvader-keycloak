@@ -3,11 +3,12 @@ import { computed, ref } from '@vue/reactivity'
 import { watch } from '@vue/runtime-core'
 
 
-const { user } = defineProps({
-  user: Object,
+const { customerService } = defineProps({
+  customerService: Object,
   registering: Boolean
 })
 
+const user = customerService.user
 
 const emit = defineEmits(["login", "logout", "register"])
 
@@ -25,33 +26,33 @@ const submit = () => {
   <aside>
     <h2>User</h2>
 
-    <p v-if="user.value.email">{{ user.value.email }}</p>
-    <form v-if="!user.value.is_anon">
+    <p v-if="user.email">{{ user.email }}</p>
+    <form v-if="!customerService.isGuest">
       <fieldset :disabled="!registering">
         <label>
           Name
-          <input v-model="user.value.name" placeholder="Name" />
+          <input v-model="user.name" placeholder="Name" />
         </label>
         <label>
           Street
-          <input v-model="user.value.street" placeholder="Street" />
+          <input v-model="user.street" placeholder="Street" />
         </label>
         <label>
           Zip
-          <input v-model="user.value.zip" placeholder="Zip" />
+          <input v-model="user.zip" placeholder="Zip" />
         </label>
         <label>
           City
-          <input v-model="user.value.city" placeholder="City" />
+          <input v-model="user.city" placeholder="City" />
         </label>
         <button v-if="registering" type="button" @click="submit">Register</button>
       </fieldset>
     </form>
   </aside>
   <div v-if="!registering">
-    <button v-if="user.value.is_anon" @click="$emit('login')">Login</button>
-    <button v-if="!user.value.is_anon" @click="$emit('logout')">Logout</button>
-    <button v-if="user.value.is_anon" @click="$emit('register')">Register</button>
+    <button v-if="customerService.isGuest" @click="$emit('login')">Login</button>
+    <button v-if="!customerService.isGuest" @click="$emit('logout')">Logout</button>
+    <button v-if="customerService.isGuest" @click="$emit('register')">Register</button>
   </div>
 </template>
 
