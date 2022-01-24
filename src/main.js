@@ -18,12 +18,10 @@ keycloak
         throw new Error("Can't get anon auth")
       }
       uri.searchParams.append('anon', true)
-      location.replace(
-        config.anonymous_authenticator +
-          '/auth/realms/shopinvader-keycloak-test/authorize-guest' +
-          '?redirect_uri=' +
-          encodeURIComponent(uri.toString())
-      )
+      const authUrl = `${config.keycloak_guest.url}/auth/realms/${
+        config.keycloak_guest.realm
+      }/authorize-guest?redirect_uri=${encodeURIComponent(uri.toString())}`
+      location.replace(authUrl)
     }
 
     const app = createApp(App, { keycloak })

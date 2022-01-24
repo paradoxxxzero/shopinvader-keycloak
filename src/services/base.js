@@ -1,6 +1,6 @@
 import config from '../../config.json'
 
-const { shopinvader_url, shopinvader_website_unique_key } = config
+const { url, website_unique_key } = config.shopinvader
 
 export default class ShopinvaderService {
   constructor(keycloak) {
@@ -13,20 +13,17 @@ export default class ShopinvaderService {
     } catch (e) {
       console.error('Unable to refresh Token', e)
     }
-    const response = await fetch(
-      shopinvader_url + [service, endpoint].join('/'),
-      {
-        method,
-        headers: {
-          'Content-Type': body ? 'application/json' : undefined,
-          'Website-Unique-Key': shopinvader_website_unique_key,
-          Authorization: `Bearer ${this.token}`,
-          'Sess-Cart-Id':
-            localStorage.getItem(`shopinvaderCart_${this.email}`) || '0',
-        },
-        body,
-      }
-    )
+    const response = await fetch(`${url}${[service, endpoint].join('/')}`, {
+      method,
+      headers: {
+        'Content-Type': body ? 'application/json' : undefined,
+        'Website-Unique-Key': website_unique_key,
+        Authorization: `Bearer ${this.token}`,
+        'Sess-Cart-Id':
+          localStorage.getItem(`shopinvaderCart_${this.email}`) || '0',
+      },
+      body,
+    })
 
     if (response.status !== 200) {
       console.error('Fail to fetch', response)
