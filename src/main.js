@@ -5,7 +5,7 @@ import config from '../config.json'
 
 const GUEST_MARK = '___guest___'
 
-const urlHash = ({ add = '', remove = '' }) =>
+const urlHash = ({ add = '', remove = '' } = {}) =>
   window.location.pathname +
   window.location.search +
   ((window.location.hash || '#') + add).replace(remove, '').replace(/^#$/, '')
@@ -43,7 +43,7 @@ const urlHash = ({ add = '', remove = '' }) =>
     })
     if (!guestAuth) {
       // No guest auth available, create user:
-      const authUrl = `${config.keycloak_guest.url}/auth/realms/${
+      const authUrl = `${config.keycloak_guest.url}/realms/${
         config.keycloak_guest.realm
       }/authorize-guest?redirect_uri=${encodeURIComponent(urlHash())}`
 

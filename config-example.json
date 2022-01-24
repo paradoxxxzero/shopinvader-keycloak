@@ -1,11 +1,11 @@
 {
   "keycloak": {
-    "url": "https://localhost:8443",
+    "url": "https://localhost:8443/auth",
     "realm": "my-realm",
     "clientId": "client"
   },
   "keycloak_guest": {
-    "url": "https://localhost:8443",
+    "url": "https://localhost:8443/auth",
     "realm": "my-guest-realm",
     "clientId": "guest-client"
   },
