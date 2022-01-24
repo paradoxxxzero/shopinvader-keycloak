@@ -6,8 +6,9 @@ import { ref, watch } from 'vue'
 import Cart from './components/Cart.vue'
 import CustomerService from './services/customer';
 
-const { keycloak } = defineProps({
+const { keycloak, keycloakGuest } = defineProps({
   keycloak: Object,
+  keycloakGuest: Object,
 })
 
 
@@ -62,7 +63,14 @@ const clear = cart.clear.bind(cart)
     <Actions @add-item="addItem" />
   </section>
   <footer>
-    <code>{{ keycloak?.tokenParsed }}</code>
+    <p>
+      Auth:
+      <code>{{ keycloak?.tokenParsed || "NULL" }}</code>
+    </p>
+    <p>
+      Guest:
+      <code>{{ keycloakGuest?.tokenParsed || "NULL" }}</code>
+    </p>
   </footer>
 </template>
 
