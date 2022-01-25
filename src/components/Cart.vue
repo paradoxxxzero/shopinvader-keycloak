@@ -1,11 +1,13 @@
 <script setup>
+import { computed } from "@vue/reactivity"
+
 
 const { cartService } = defineProps({
   cartService: Object,
 })
 
-const cart = cartService.cart.value
 
+const cart = computed(() => cartService.cart.value)
 const emit = defineEmits(["remove-item", "refresh", "clear"])
 
 emit("refresh")

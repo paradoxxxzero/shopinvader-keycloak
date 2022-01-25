@@ -29,6 +29,8 @@ const silentCheckSsoRedirectUri = `${window.location.origin}/${config.sso_page}`
     }/authorize-guest?redirect_uri=${encodeURIComponent(window.location.href)}`
 
     location.replace(authUrl)
+    // This should not be reached, but it is sometimes so we return to be safe
+    return
   }
 
   const app = createApp(App, {

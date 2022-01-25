@@ -46,11 +46,11 @@ export default class ShopinvaderService {
 
   get email() {
     return this.isGuest
-      ? this.keycloaks.guest?.tokenParsed?.email
-      : this.keycloaks.auth?.tokenParsed?.email
+      ? this.keycloaks.guest.tokenParsed?.email
+      : this.keycloaks.auth.tokenParsed?.email
   }
 
   get isGuest() {
-    return !this.keycloaks.auth?.authenticated
+    return !this.keycloaks.auth.authenticated
   }
 }

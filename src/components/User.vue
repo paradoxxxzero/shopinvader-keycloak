@@ -8,7 +8,7 @@ const { customerService } = defineProps({
   registering: Boolean
 })
 
-const user = customerService.user
+const user = computed(() => customerService.user)
 
 const emit = defineEmits(["login", "logout", "register"])
 
@@ -50,6 +50,7 @@ const submit = () => {
     </form>
   </aside>
   <div v-if="!registering">
+    <button type="button" @click="customerService.get">Refresh</button>
     <button v-if="customerService.isGuest" @click="$emit('login')">Login</button>
     <button v-if="!customerService.isGuest" @click="$emit('logout')">Logout</button>
     <button v-if="customerService.isGuest" @click="$emit('register')">Register</button>
