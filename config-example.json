@@ -12,5 +12,6 @@
   "shopinvader": {
     "url": "http://localhost:8069/shopinvader_jwt/",
     "website_unique_key": "xxxxxxxxxxxx"
-  }
+  },
+  "sso_page": "sso.html"
 }
