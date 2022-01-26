@@ -8,13 +8,14 @@ export default class ShopinvaderService {
     this.keycloaks = keycloaks
   }
 
-  async fetch(
-    method,
+  async fetch({
     service,
+    method = 'GET',
     endpoint = '',
     body = undefined,
-    allowAnonymous = false
-  ) {
+    headers = {},
+    allowAnonymous = false,
+  }) {
     if (this.isGuest && !allowAnonymous) {
       return
     }
@@ -31,10 +32,9 @@ export default class ShopinvaderService {
         'Content-Type': body ? 'application/json' : undefined,
         'Website-Unique-Key': website_unique_key,
         Authorization: `Bearer ${keycloak.token}`,
-        'Sess-Cart-Id':
-          localStorage.getItem(`shopinvaderCart_${this.email}`) || '0',
+        ...headers,
       },
-      body,
+      body: body ? JSON.stringify(body) : undefined,
     })
 
     if (response.status !== 200) {
@@ -51,6 +51,16 @@ export default class ShopinvaderService {
   }
 
   get isGuest() {
-    return !this.keycloaks.auth.authenticated
+    return this.keycloaks.guest.authenticated
+  }
+
+  get isAuth() {
+    return this.keycloaks.auth.authenticated
+  }
+
+  get isBoth() {
+    return (
+      this.keycloaks.auth.authenticated && this.keycloaks.guest.authenticated
+    )
   }
 }

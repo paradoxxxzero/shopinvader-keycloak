@@ -8,17 +8,14 @@ const { customerService } = defineProps({
   registering: Boolean
 })
 
-const user = computed(() => customerService.user)
+const user = computed(() => customerService.user.value)
 
 const emit = defineEmits(["login", "logout", "register"])
 
-const submit = () => {
-  const country = {
-    id: 75 // France
+const submit = async () => {
+  if (await customerService.register()) {
+    location.replace('/')
   }
-  console.log('Register customer', { country, ...user.value })
-  // user creation in shopinvader
-  location.replace('/')
 }
 </script>
 
@@ -27,7 +24,7 @@ const submit = () => {
     <h2>User</h2>
 
     <p v-if="user.email">{{ user.email }}</p>
-    <form v-if="!customerService.isGuest">
+    <form v-if="customerService.isAuth">
       <fieldset :disabled="!registering">
         <label>
           Name
