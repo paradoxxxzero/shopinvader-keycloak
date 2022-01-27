@@ -28,11 +28,18 @@ from pyop.exceptions import InvalidAccessToken
 app = Flask(__name__)
 sub_hash_salt = "salt"
 
+config_file = Path(
+    os.getenv(
+        "OIDC_GUEST_PROVIDER_CONFIG", Path(__file__).parent.parent / "config.json"
+    )
+).absolute()
+
+
 try:
-    with open(Path(__file__).parent.parent / "config.json") as config:
+    with open(config_file) as config:
         config = json.loads(config.read())["oidc-guest-provider"]
 except Exception:
-    print("Could not load config.json", file=stderr)
+    print(f"Could not load config file {config_file}", file=stderr)
     exit(1)
 
 
