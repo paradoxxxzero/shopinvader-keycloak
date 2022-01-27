@@ -13,5 +13,16 @@
     "url": "http://localhost:8069/shopinvader_jwt/",
     "website_unique_key": "xxxxxxxxxxxx"
   },
-  "sso_page": "sso.html"
+  "sso_page": "sso.html",
+  "guest_creator": "oidc-guest-provider",
+  "oidc-guest-provider": {
+    "client_id": "my-guest-client",
+    "client_secret": "my-guest-secret",
+    "client_redirect_uri": "https://localhost:8443/auth/realms/my-guest-realm/broker/oidc-guest-provider/endpoint",
+    "signing_key": "oidc-guest-provider/rs256.rsa",
+    "signing_alg": "RS256",
+    "issuer": "https://localhost:3002/",
+    "salt": "my-salt",
+    "rng_size": 32
+  }
 }

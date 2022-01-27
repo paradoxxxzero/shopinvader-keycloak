@@ -5,3 +5,4 @@ dist-ssr
 *.local
 /secrets.json
 /config.json
+oidc-guest-provider/rs256*

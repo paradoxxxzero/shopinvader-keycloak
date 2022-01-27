@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "serve-anonymous-authenticator": "node ./anonymous_authenticator/serve.mjs",
-    "dev": "concurrently --kill-others \"yarn serve-anonymous-authenticator\" vite",
+    "serve-guest-authenticator": "node ./guest-authenticator/serve.mjs",
+    "serve-oidc-guest-provider": "FLASK_APP=\"oidc-guest-provider.serve\" poetry run flask run -p 3002",
+    "dev": "concurrently --kill-others \"yarn serve-oidc-guest-provider\" vite",
+    "gen-keys": "ssh-keygen -t rsa -b 4096 -f oidc-guest-provider/rs256.rsa",
     "build": "vite build",
     "preview": "vite preview"
   },

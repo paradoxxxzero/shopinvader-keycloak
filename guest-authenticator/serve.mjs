@@ -108,5 +108,7 @@ app.get('/*', async (req, res) => {
 })
 
 app.listen(args.port, args.host, () => {
-  console.log(`Middleware listening at http://${args.host}:${args.port}`)
+  console.log(
+    `Guest Authenticator listening at http://${args.host}:${args.port}`
+  )
 })
