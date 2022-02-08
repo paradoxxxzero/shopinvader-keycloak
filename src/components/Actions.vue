@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from "@vue/reactivity"
-import { e } from "../../dist/assets/vendor.11151e81";
 
 const productId = ref(1)
 const qty = ref(1)
