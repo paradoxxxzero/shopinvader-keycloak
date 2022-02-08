@@ -1,5 +1,5 @@
 import Keycloak from 'keycloak-js'
-import { createApp } from 'vue'
+import { createApp, ref } from 'vue'
 import App from './App.vue'
 import config from '../config.json'
 
@@ -15,7 +15,16 @@ const silentCheckSsoRedirectUri = `${window.location.origin}/${config.sso_page}`
 
   window.keycloak = keycloak
   window.keycloakGuest = keycloakGuest
-  let auth
+  let auth,
+    guestAuth,
+    state = ref('loading')
+
+  const app = createApp(App, {
+    keycloaks: { auth: keycloak, guest: keycloakGuest },
+    state,
+  })
+
+  app.mount('#app')
 
   try {
     auth = await keycloak.init({
@@ -28,23 +37,36 @@ const silentCheckSsoRedirectUri = `${window.location.origin}/${config.sso_page}`
       location.hash = hashState
       redoAuth = true
     } else {
-      throw e
+      console.error('Error on auth', e)
+      state.value = 'fail'
     }
   }
 
-  const guestAuth = await keycloakGuest.init({
-    onLoad: 'check-sso',
-    silentCheckSsoRedirectUri,
-  })
-
-  if (redoAuth) {
-    auth = await keycloak.init({
-      onLoad: 'check-sso',
-      silentCheckSsoRedirectUri,
-    })
+  if (state.value !== 'fail') {
+    try {
+      guestAuth = await keycloakGuest.init({
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri,
+      })
+    } catch (e) {
+      console.error('Error on guest', e)
+      state.value = 'fail'
+    }
   }
 
-  if (!auth && !guestAuth) {
+  if (state.value !== 'fail' && redoAuth) {
+    try {
+      auth = await keycloak.init({
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri,
+      })
+    } catch (e) {
+      console.error('Error on reauth', e)
+      state.value = 'fail'
+    }
+  }
+
+  if (state.value !== 'fail' && !auth && !guestAuth) {
     // No guest auth available, create user:
     if (config.guest_creator === 'oidc-guest-provider') {
       keycloakGuest.login({
@@ -63,10 +85,7 @@ const silentCheckSsoRedirectUri = `${window.location.origin}/${config.sso_page}`
     // app rendering without any user
     return
   }
-
-  const app = createApp(App, {
-    keycloaks: { auth: keycloak, guest: keycloakGuest },
-  })
-
-  app.mount('#app')
+  if (state.value !== 'fail') {
+    state.value = 'success'
+  }
 })()

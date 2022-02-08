@@ -5,9 +5,11 @@ import Actions from './components/Actions.vue'
 import { ref, watch } from 'vue'
 import Cart from './components/Cart.vue'
 import CustomerService from './services/customer';
+import Logo from './components/Logo.vue'
 
 const { keycloaks } = defineProps({
   keycloaks: Object,
+  state: String
 })
 
 const login = () => {
@@ -48,11 +50,10 @@ const clear = cart.clear.bind(cart)
 </script>
 
 <template>
-  <a href="/">
-    <img class="logo" alt="Shopping cart" src="./assets/logo.svg" />
-  </a>
+  <Logo :state="state" />
   <header>
     <User
+      v-if="state.value === 'success'"
       :customerService="customer"
       :registering="registering"
       @login="login"
@@ -60,11 +61,11 @@ const clear = cart.clear.bind(cart)
       @register="register"
     />
   </header>
-  <section v-if="!registering">
+  <section v-if="!registering && state.value === 'success'">
     <Cart :cartService="cart" @refresh="refresh" @clear="clear" @remove-item="removeItem" />
     <Actions @add-item="addItem" />
   </section>
-  <footer>
+  <footer v-if="state.value === 'success'">
     <p>
       Auth:
       <code>{{ keycloaks.auth.tokenParsed || "NULL" }}</code>
@@ -85,10 +86,6 @@ const clear = cart.clear.bind(cart)
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
-.logo {
-  width: 200px;
-  margin: 0 auto;
 }
 section {
   display: flex;
