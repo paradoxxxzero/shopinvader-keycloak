@@ -24,7 +24,6 @@ export default class CustomerService extends ShopinvaderService {
         : ANONYMOUS_USER
     )
     this.registering = registering
-    this.get()
   }
 
   async sync(method, endpoint = '', body = undefined, allowAnonymous = false) {

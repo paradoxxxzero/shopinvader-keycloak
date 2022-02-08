@@ -71,8 +71,8 @@ export default class CartService extends ShopinvaderService {
     })
   }
 
-  clear() {
-    this.cart.value = INITIAL_CART
+  async clear() {
+    return await this.sync('POST', 'clear')
   }
 
   get isEmpty() {

@@ -9,7 +9,7 @@ import Logo from './components/Logo.vue'
 
 const { keycloaks } = defineProps({
   keycloaks: Object,
-  state: String
+  state: Object
 })
 
 const login = () => {
@@ -42,6 +42,8 @@ const customer = new CustomerService(keycloaks, registering.value)
 window.cart = cart
 window.customer = customer
 
+const refreshCustomer = customer.get.bind(customer)
+
 const refresh = cart.get.bind(cart)
 const addItem = cart.addItem.bind(cart)
 const removeItem = cart.removeItem.bind(cart)
@@ -50,49 +52,67 @@ const clear = cart.clear.bind(cart)
 </script>
 
 <template>
-  <Logo :state="state" />
-  <header>
-    <User
-      v-if="state.value === 'success'"
-      :customerService="customer"
-      :registering="registering"
-      @login="login"
-      @logout="logout"
-      @register="register"
-    />
-  </header>
+  <Logo :state="state.value" />
+  <User
+    v-if="state.value === 'success'"
+    :customerService="customer"
+    :registering="registering"
+    @login="login"
+    @logout="logout"
+    @register="register"
+    @refresh="refreshCustomer"
+  />
   <section v-if="!registering && state.value === 'success'">
     <Cart :cartService="cart" @refresh="refresh" @clear="clear" @remove-item="removeItem" />
     <Actions @add-item="addItem" />
   </section>
   <footer v-if="state.value === 'success'">
-    <p>
+    <div>
       Auth:
-      <code>{{ keycloaks.auth.tokenParsed || "NULL" }}</code>
-    </p>
-    <p>
+      <code
+        :title="JSON.stringify(keycloaks.auth.tokenParsed)"
+      >{{ keycloaks.auth.tokenParsed?.email || "NULL" }}</code>
+    </div>
+    <div>
       Guest:
-      <code>{{ keycloaks.guest.tokenParsed || "NULL" }}</code>
-    </p>
+      <code
+        :title="JSON.stringify(keycloaks.guest.tokenParsed)"
+      >{{ keycloaks.guest.tokenParsed?.email || "NULL" }}</code>
+    </div>
     <button @click="clearGuest" v-if="keycloaks.guest.authenticated">Clear guest</button>
   </footer>
 </template>
 
 <style>
+html,
+body,
 #app {
+  height: 100%;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 section {
+  flex: 1;
   display: flex;
   justify-content: space-evenly;
+  min-height: 0;
+  width: 100%;
 }
 footer {
-  position: fixed;
-  bottom: 0;
+  margin: 16px 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
 }
 </style>

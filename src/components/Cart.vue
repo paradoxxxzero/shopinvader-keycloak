@@ -25,19 +25,29 @@ emit("refresh")
       </li>
       <li>Total: {{ cart.amount.total }}$</li>
     </ul>
-    <button @click="$emit('refresh')">Refresh</button>
-    <button @click="$emit('clear')">Clear</button>
+    <div>
+      <button @click="$emit('refresh')">Refresh</button>
+      <button @click="$emit('clear')">Clear</button>
+    </div>
   </article>
 </template>
 
 <style scoped>
+article {
+  margin: 16px;
+  display: flex;
+  flex-direction: column;
+}
 a {
   color: #42b983;
+}
+ul {
+  overflow: auto;
 }
 li {
   margin: 16px;
   padding: 4px;
   list-style: none;
-  background: #fff8f8;
+  background: #fcfcfc;
 }
 </style>

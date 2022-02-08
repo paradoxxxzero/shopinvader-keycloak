@@ -9,14 +9,15 @@ const { customerService } = defineProps({
 })
 
 const user = computed(() => customerService.user.value)
-
-const emit = defineEmits(["login", "logout", "register"])
-
 const submit = async () => {
   if (await customerService.register()) {
     location.replace('/')
   }
 }
+const emit = defineEmits(["login", "logout", "register", "refresh"])
+
+emit("refresh")
+
 </script>
 
 <template>
@@ -45,16 +46,19 @@ const submit = async () => {
         <button v-if="registering" type="button" @click="submit">Register</button>
       </fieldset>
     </form>
+    <div v-if="!registering">
+      <button type="button" @click="$emit('refresh')">Refresh</button>
+      <button v-if="customerService.isGuest" @click="$emit('login')">Login</button>
+      <button v-if="!customerService.isGuest" @click="$emit('logout')">Logout</button>
+      <button v-if="customerService.isGuest" @click="$emit('register')">Register</button>
+    </div>
   </aside>
-  <div v-if="!registering">
-    <button type="button" @click="customerService.get">Refresh</button>
-    <button v-if="customerService.isGuest" @click="$emit('login')">Login</button>
-    <button v-if="!customerService.isGuest" @click="$emit('logout')">Logout</button>
-    <button v-if="customerService.isGuest" @click="$emit('register')">Register</button>
-  </div>
 </template>
 
 <style scoped>
+aside {
+  margin: 16px;
+}
 p {
   color: #0a5659;
 }

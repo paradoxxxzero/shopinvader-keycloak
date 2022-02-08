@@ -30,6 +30,9 @@ const addProduct = e => {
 </template>
 
 <style scoped>
+article {
+  margin: 16px;
+}
 div {
   display: flex;
   flex-direction: column;

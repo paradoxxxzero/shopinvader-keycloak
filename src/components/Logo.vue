@@ -10,7 +10,7 @@ const logoColors = {
 </script>
 
 <template>
-  <aside>
+  <header>
     <a href="/">
       <svg
         version="1.1"
@@ -18,7 +18,7 @@ const logoColors = {
         xmlns:xlink="http://www.w3.org/1999/xlink"
         viewBox="0 0 488.355 488.355"
       >
-        <g :fill="logoColors[state.value]">
+        <g :fill="logoColors[state]">
           <path
             d="M442.033,175.755l-309.9-28.9c-1.7-0.2-3.3-0.2-4.9-0.1l-12.4-60c-0.3-1.2-0.6-2.4-1.1-3.4c-1.9-4.8-5.9-8.7-11.2-10.3
 			l-59.1-17.4c-9.1-2.7-18.7,2.5-21.4,11.7c-2.7,9.1,2.5,18.7,11.7,21.4l49.3,14.5l59.3,285.8c1.1,8.4,8.3,14.9,17.1,14.9l255-0.1
@@ -38,15 +38,15 @@ const logoColors = {
         </g>
       </svg>
     </a>
-    <h1 v-if="state.value === 'loading'">Loading…</h1>
-    <h1 v-if="state.value === 'fail'">Authentication error</h1>
-  </aside>
+    <h1 v-if="state === 'loading'">Loading…</h1>
+    <h1 v-if="state === 'fail'">Authentication error</h1>
+  </header>
 </template>
 
 <style scoped>
 svg {
   width: 200px;
-  margin: 0 auto;
+  margin: 60px auto 16px;
 }
 svg g[fill] {
   transition: 1s fill;
