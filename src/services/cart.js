@@ -15,8 +15,7 @@ export default class CartService extends ShopinvaderService {
     endpoint = '',
     body = undefined,
     onSuccess = response => {
-      localStorage.setItem(`shopinvaderCart_${this.email}`, response.data.id)
-      this.cart.value = response.data
+      this.cart.value = response.data ? response.data : INITIAL_CART
       return response
     }
   ) {
@@ -25,11 +24,6 @@ export default class CartService extends ShopinvaderService {
       method,
       endpoint,
       body,
-
-      headers: {
-        'Sess-Cart-Id':
-          localStorage.getItem(`shopinvaderCart_${this.email}`) || '0',
-      },
       allowAnonymous: true,
     })
 
@@ -46,11 +40,6 @@ export default class CartService extends ShopinvaderService {
         token: this.keycloaks.auth.token,
       },
       response => {
-        localStorage.removeItem(`shopinvaderCart_${this.email}`)
-        localStorage.setItem(
-          `shopinvaderCart_${this.keycloaks.auth.tokenParsed.email}`,
-          response.data.id
-        )
         this.cart.value = response.data
         this.keycloaks.guest.logout()
         return response
@@ -61,11 +50,13 @@ export default class CartService extends ShopinvaderService {
   async get() {
     if (this.isBoth) {
       // We are transitioning from guest to auth
+      await this.sync('GET')
+      if (this.isEmpty) {
+        return this.keycloaks.guest.logout()
+      }
       return await this.transfert()
     }
-    if (localStorage.getItem(`shopinvaderCart_${this.email}`)) {
-      return await this.sync('GET')
-    }
+    return await this.sync('GET')
   }
 
   async addItem({ productId, qty }) {
@@ -81,7 +72,10 @@ export default class CartService extends ShopinvaderService {
   }
 
   clear() {
-    localStorage.removeItem(`shopinvaderCart_${this.email}`)
     this.cart.value = INITIAL_CART
+  }
+
+  get isEmpty() {
+    return !this.cart.value.lines.items.length
   }
 }

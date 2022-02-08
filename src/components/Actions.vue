@@ -1,16 +1,18 @@
 <script setup>
 import { ref } from "@vue/reactivity"
+import { e } from "../../dist/assets/vendor.11151e81";
 
-const productId = ref(null)
-const qty = ref(null)
+const productId = ref(1)
+const qty = ref(1)
 
 const emit = defineEmits(["add-item"])
 
-const addProduct = () => {
+const addProduct = e => {
   emit('add-item', {
     productId: productId.value,
     qty: qty.value,
   })
+  e.preventDefault()
 }
 
 </script>
@@ -19,10 +21,10 @@ const addProduct = () => {
   <article>
     <h2>Actions</h2>
     <div>
-      <form>
+      <form @submit="addProduct">
         <input v-model="productId" type="number" placeholder="product id" />
         <input v-model="qty" type="number" placeholder="qty" />
-        <button type="button" @click="addProduct">Add product</button>
+        <button type="submit">Add product</button>
       </form>
     </div>
   </article>
