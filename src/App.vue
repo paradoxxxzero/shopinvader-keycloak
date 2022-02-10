@@ -12,32 +12,12 @@ const { keycloaks } = defineProps({
   state: Object
 })
 
-const login = () => {
-  // After login we redirect to main page
-  keycloaks.auth.login()
-}
-const logout = () => {
-  // After logout we redirect to main page
-  keycloaks.auth.logout()
-}
-const clearGuest = () => {
-  // After logout we redirect to main page
-  keycloaks.guest.logout()
-}
-
-const register = () => {
-  // After register we redirect to the registration page of shopinvader
-  keycloaks.auth.register({
-    redirectUri: `${window.location.origin}/register`,
-  })
-}
-
 // Use a real router instead
 const registering = ref(window.location.pathname == '/register')
 
 // Use a real service
-const cart = new CartService(keycloaks)
 const customer = new CustomerService(keycloaks, registering.value)
+const cart = new CartService(keycloaks, customer)
 
 window.cart = cart
 window.customer = customer
@@ -49,6 +29,17 @@ const addItem = cart.addItem.bind(cart)
 const removeItem = cart.removeItem.bind(cart)
 const clear = cart.clear.bind(cart)
 
+const login = () => {
+  // After login we redirect to main page
+  keycloaks.user.login()
+}
+
+const register = () => {
+  // After register we redirect to the registration page of shopinvader
+  keycloaks.user.register({
+    redirectUri: `${window.location.origin}/register`,
+  })
+}
 </script>
 
 <template>
@@ -58,7 +49,6 @@ const clear = cart.clear.bind(cart)
     :customerService="customer"
     :registering="registering"
     @login="login"
-    @logout="logout"
     @register="register"
     @refresh="refreshCustomer"
   />
@@ -66,21 +56,6 @@ const clear = cart.clear.bind(cart)
     <Cart :cartService="cart" @refresh="refresh" @clear="clear" @remove-item="removeItem" />
     <Actions @add-item="addItem" />
   </section>
-  <footer v-if="state.value === 'success'">
-    <div>
-      Auth:
-      <code
-        :title="JSON.stringify(keycloaks.auth.tokenParsed)"
-      >{{ keycloaks.auth.tokenParsed?.email || "NULL" }}</code>
-    </div>
-    <div>
-      Guest:
-      <code
-        :title="JSON.stringify(keycloaks.guest.tokenParsed)"
-      >{{ keycloaks.guest.tokenParsed?.email || "NULL" }}</code>
-    </div>
-    <button @click="clearGuest" v-if="keycloaks.guest.authenticated">Clear guest</button>
-  </footer>
 </template>
 
 <style>
@@ -108,11 +83,5 @@ section {
   justify-content: space-evenly;
   min-height: 0;
   width: 100%;
-}
-footer {
-  margin: 16px 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-evenly;
 }
 </style>

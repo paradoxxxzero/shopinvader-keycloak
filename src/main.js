@@ -1,90 +1,75 @@
-import Keycloak from 'keycloak-js'
+import Keycloak, { keycloak } from 'keycloak-js'
 import { createApp, ref } from 'vue'
 import App from './App.vue'
 import config from '../config.json'
+import { createGuestUser } from './utils'
 
+// This url is required to do initial silent login check
 const silentCheckSsoRedirectUri = `${window.location.origin}/${config.sso_page}`
 
+// Here we check that we are in guest process login,
+// if so we need to start by initializing guest keycloak first
+// otherwise user keycloak will remove the state parameter/hash from the url and
+// the guest keycloak won't be able to login.
+const isGuestLogin = window.location.pathname === '/guest'
+
+if (isGuestLogin) {
+  // Remove the guest from url now that we know we are in guest login
+  // This assumes that guest login always redirect to home page
+  const url = new URL(window.location.href)
+  url.pathname = ''
+  window.history.replaceState(null, null, url.toString())
+}
+
+// Let's create both keycloak instances
+const keycloaks = {
+  user: new Keycloak(config.keycloak_user),
+  guest: new Keycloak(config.keycloak_guest),
+}
+
+// We use a auth state to notify app the current login status
+const state = ref('loading')
+
+// Create the app and mount it
+const app = createApp(App, {
+  keycloaks: { user: keycloaks.user, guest: keycloaks.guest },
+  state,
+})
+app.mount('#app')
+
+// As specified above we need to init the keycloak in the right order
+const sortedKeycloaks = [keycloaks.user, keycloaks.guest]
+if (isGuestLogin) {
+  // We are in guest login so let's start with guest keycloak
+  sortedKeycloaks.reverse()
+}
+
+// Rest of login process is done async
 ;(async () => {
-  // Save hash in case of guest login redirect
-  const hashState = location.hash
-  let redoAuth = false
-
-  const keycloak = new Keycloak(config.keycloak)
-  const keycloakGuest = new Keycloak(config.keycloak_guest)
-
-  window.keycloak = keycloak
-  window.keycloakGuest = keycloakGuest
-  let auth,
-    guestAuth,
-    state = ref('loading')
-
-  const app = createApp(App, {
-    keycloaks: { auth: keycloak, guest: keycloakGuest },
-    state,
-  })
-
-  app.mount('#app')
-
-  try {
-    auth = await keycloak.init({
-      onLoad: 'check-sso',
-      silentCheckSsoRedirectUri,
-    })
-  } catch (e) {
-    if (hashState) {
-      // This should be a guest login, restore hash and redo auth after
-      location.hash = hashState
-      redoAuth = true
-    } else {
-      console.error('Error on auth', e)
-      state.value = 'fail'
+  const auths = []
+  for (const keycloak of sortedKeycloaks) {
+    if (state.value !== 'fail') {
+      try {
+        // Init the keycloak and get the authentication status
+        auths.push(
+          await keycloak.init({
+            onLoad: 'check-sso',
+            silentCheckSsoRedirectUri,
+          })
+        )
+      } catch (e) {
+        console.error('Error on keycloak init', keycloak, e)
+        state.value = 'fail'
+      }
     }
   }
 
-  if (state.value !== 'fail') {
-    try {
-      guestAuth = await keycloakGuest.init({
-        onLoad: 'check-sso',
-        silentCheckSsoRedirectUri,
-      })
-    } catch (e) {
-      console.error('Error on guest', e)
-      state.value = 'fail'
-    }
+  if (state.value !== 'fail' && !auths.some(x => x)) {
+    // No auth available, create a guest user by logging in the special realm:
+    return createGuestUser(keycloaks.guest)
   }
 
-  if (state.value !== 'fail' && redoAuth) {
-    try {
-      auth = await keycloak.init({
-        onLoad: 'check-sso',
-        silentCheckSsoRedirectUri,
-      })
-    } catch (e) {
-      console.error('Error on reauth', e)
-      state.value = 'fail'
-    }
-  }
-
-  if (state.value !== 'fail' && !auth && !guestAuth) {
-    // No guest auth available, create user:
-    if (config.guest_creator === 'oidc-guest-provider') {
-      keycloakGuest.login({
-        idpHint: 'oidc-guest-provider',
-      })
-    } else if (config.guest_creator === 'guest-authenticator') {
-      const authUrl = `${config.keycloak_guest.url}/realms/${
-        config.keycloak_guest.realm
-      }/authorize-guest?redirect_uri=${encodeURIComponent(
-        window.location.href
-      )}`
-
-      location.replace(authUrl)
-    }
-    // This should not be reached, but it is sometimes so we return to avoid
-    // app rendering without any user
-    return
-  }
+  // If nothing went wrong, it's a success
   if (state.value !== 'fail') {
     state.value = 'success'
   }

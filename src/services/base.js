@@ -19,13 +19,18 @@ export default class ShopinvaderService {
     if (this.isGuest && !allowAnonymous) {
       return
     }
-    const keycloak = this.isGuest ? this.keycloaks.guest : this.keycloaks.auth
+    // Always use token from guest if present because the cart transfert request
+    // use the guest token to transfer to the user
+    const keycloak = this.isGuest ? this.keycloaks.guest : this.keycloaks.user
 
     try {
-      await keycloak.updateToken(30)
+      // Refresh token if needed
+      await keycloak.updateToken()
     } catch (e) {
       console.error('Unable to refresh Token', e)
     }
+
+    // Fetch shopinvader api service endpoint
     const response = await fetch(`${url}${[service, endpoint].join('/')}`, {
       method,
       headers: {
@@ -47,20 +52,20 @@ export default class ShopinvaderService {
   get email() {
     return this.isGuest
       ? this.keycloaks.guest.tokenParsed?.email
-      : this.keycloaks.auth.tokenParsed?.email
+      : this.keycloaks.user.tokenParsed?.email
   }
 
   get isGuest() {
     return this.keycloaks.guest.authenticated
   }
 
-  get isAuth() {
-    return this.keycloaks.auth.authenticated
+  get isUser() {
+    return this.keycloaks.user.authenticated
   }
 
   get isBoth() {
     return (
-      this.keycloaks.auth.authenticated && this.keycloaks.guest.authenticated
+      this.keycloaks.user.authenticated && this.keycloaks.guest.authenticated
     )
   }
 }

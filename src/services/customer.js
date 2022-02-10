@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue'
 import ShopinvaderService from './base'
+import { silentLogout, createGuestUser } from '../utils'
 
 const ANONYMOUS_USER = Object.freeze({
   name: 'Anonymous',
@@ -15,11 +16,11 @@ export default class CustomerService extends ShopinvaderService {
     this.user = ref(
       registering
         ? {
-            email: this.keycloaks.auth.tokenParsed.email,
+            email: this.keycloaks.user.tokenParsed.email,
             country: {
               id: 75, // France
             },
-            external_id: this.keycloaks.auth.tokenParsed.sub,
+            external_id: this.keycloaks.user.tokenParsed.sub,
           }
         : ANONYMOUS_USER
     )
@@ -49,5 +50,18 @@ export default class CustomerService extends ShopinvaderService {
 
   async register() {
     return await this.sync('POST', 'create', this.user.value, true)
+  }
+
+  async logout(type) {
+    await silentLogout(this.keycloaks[type])
+
+    if (this.email) {
+      // If we still have an auth, refresh the user
+      await this.sync('GET')
+    } else {
+      // If we do not have auth anymore, let's skip to guest user creation
+      // This prevent an useless redirect
+      createGuestUser(this.keycloaks.guest)
+    }
   }
 }

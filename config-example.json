@@ -1,5 +1,5 @@
 {
-  "keycloak": {
+  "keycloak_user": {
     "url": "https://localhost:8443/auth",
     "realm": "my-realm",
     "clientId": "client"

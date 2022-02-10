@@ -1,13 +1,15 @@
 import { ref } from 'vue'
 import ShopinvaderService from './base'
 import { keycloak } from 'keycloak-js'
+import CustomerService from './customer'
 
 const INITIAL_CART = { lines: { items: [] }, amount: { total: 0 } }
 
 export default class CartService extends ShopinvaderService {
-  constructor(keycloaks) {
+  constructor(keycloaks, customerService) {
     super(keycloaks)
     this.cart = ref(INITIAL_CART)
+    this.customerService = customerService
   }
 
   async sync(
@@ -28,20 +30,22 @@ export default class CartService extends ShopinvaderService {
     })
 
     if (response) {
-      return onSuccess(response)
+      return await onSuccess(response)
     }
     return response
   }
+
   async transfert() {
+    // This request must be done with guest token
     return await this.sync(
       'POST',
       'transfert',
       {
-        token: this.keycloaks.auth.token,
+        token: this.keycloaks.user.token,
       },
-      response => {
+      async response => {
         this.cart.value = response.data
-        this.keycloaks.guest.logout()
+        await this.customerService.logout('guest')
         return response
       }
     )
@@ -49,12 +53,13 @@ export default class CartService extends ShopinvaderService {
 
   async get() {
     if (this.isBoth) {
-      // We are transitioning from guest to auth
+      // We are transitioning from guest to user
       await this.sync('GET')
       if (this.isEmpty) {
-        return this.keycloaks.guest.logout()
+        await this.customerService.logout('guest')
+      } else {
+        return await this.transfert()
       }
-      return await this.transfert()
     }
     return await this.sync('GET')
   }

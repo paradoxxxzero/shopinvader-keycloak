@@ -1,6 +1,6 @@
 <script setup>
-import { computed, ref } from '@vue/reactivity'
-import { watch } from '@vue/runtime-core'
+import { computed } from '@vue/reactivity';
+import Debug from './Debug.vue';
 
 
 const { customerService } = defineProps({
@@ -8,13 +8,18 @@ const { customerService } = defineProps({
   registering: Boolean
 })
 
+const logout = () => {
+  customerService.logout("user")
+}
+
 const user = computed(() => customerService.user.value)
 const submit = async () => {
   if (await customerService.register()) {
     location.replace('/')
   }
 }
-const emit = defineEmits(["login", "logout", "register", "refresh"])
+
+const emit = defineEmits(["login", "register", "refresh"])
 
 emit("refresh")
 
@@ -23,9 +28,11 @@ emit("refresh")
 <template>
   <aside>
     <h2>User</h2>
-
     <p v-if="user.email">{{ user.email }}</p>
-    <form v-if="customerService.isAuth">
+    <p v-if="customerService.isGuest" :title="customerService.email">Guest</p>
+    <Debug :keycloaks="customerService.keycloaks" :user="user" />
+
+    <form v-if="customerService.isUser">
       <fieldset :disabled="!registering">
         <label>
           Name
@@ -49,7 +56,7 @@ emit("refresh")
     <div v-if="!registering">
       <button type="button" @click="$emit('refresh')">Refresh</button>
       <button v-if="customerService.isGuest" @click="$emit('login')">Login</button>
-      <button v-if="!customerService.isGuest" @click="$emit('logout')">Logout</button>
+      <button v-if="!customerService.isGuest" @click="logout">Logout</button>
       <button v-if="customerService.isGuest" @click="$emit('register')">Register</button>
     </div>
   </aside>
@@ -59,6 +66,7 @@ emit("refresh")
 aside {
   margin: 16px;
 }
+
 p {
   color: #0a5659;
 }
