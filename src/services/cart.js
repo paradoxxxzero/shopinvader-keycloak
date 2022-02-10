@@ -35,11 +35,11 @@ export default class CartService extends ShopinvaderService {
     return response
   }
 
-  async transfert() {
+  async transfer() {
     // This request must be done with guest token
     return await this.sync(
       'POST',
-      'transfert',
+      'transfer',
       {
         token: this.keycloaks.user.token,
       },
@@ -58,7 +58,7 @@ export default class CartService extends ShopinvaderService {
       if (this.isEmpty) {
         await this.customerService.logout('guest')
       } else {
-        return await this.transfert()
+        return await this.transfer()
       }
     }
     return await this.sync('GET')

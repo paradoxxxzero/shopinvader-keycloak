@@ -19,7 +19,7 @@ export default class ShopinvaderService {
     if (this.isGuest && !allowAnonymous) {
       return
     }
-    // Always use token from guest if present because the cart transfert request
+    // Always use token from guest if present because the cart transfer request
     // use the guest token to transfer to the user
     const keycloak = this.isGuest ? this.keycloaks.guest : this.keycloaks.user
 
