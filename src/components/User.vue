@@ -3,17 +3,24 @@ import { computed } from '@vue/reactivity';
 import Debug from './Debug.vue';
 
 
-const { customerService } = defineProps({
+const { customerService, registering } = defineProps({
   customerService: Object,
   registering: Boolean
 })
+
+if (registering) {
+  customerService.setupRegisteringUser()
+}
+
 
 const logout = () => {
   customerService.logout("user")
 }
 
 const user = computed(() => customerService.user.value)
-const submit = async () => {
+const submit = async e => {
+  e.preventDefault()
+
   if (await customerService.register()) {
     location.replace('/')
   }
@@ -32,7 +39,7 @@ emit("refresh")
     <p v-if="customerService.isGuest" :title="customerService.email">Guest</p>
     <Debug :keycloaks="customerService.keycloaks" :user="user" />
 
-    <form v-if="customerService.isUser">
+    <form v-if="customerService.isUser" @submit="submit">
       <fieldset :disabled="!registering">
         <label>
           Name
@@ -50,7 +57,7 @@ emit("refresh")
           City
           <input v-model="user.city" placeholder="City" />
         </label>
-        <button v-if="registering" type="button" @click="submit">Register</button>
+        <button v-if="registering" type="submit">Register</button>
       </fieldset>
     </form>
     <div v-if="!registering">

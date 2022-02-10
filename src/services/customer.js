@@ -13,18 +13,19 @@ const ANONYMOUS_USER = Object.freeze({
 export default class CustomerService extends ShopinvaderService {
   constructor(keycloaks, registering) {
     super(keycloaks)
-    this.user = ref(
-      registering
-        ? {
-            email: this.keycloaks.user.tokenParsed.email,
-            country: {
-              id: 75, // France
-            },
-            external_id: this.keycloaks.user.tokenParsed.sub,
-          }
-        : ANONYMOUS_USER
-    )
+    this.user = ref(ANONYMOUS_USER)
     this.registering = registering
+  }
+
+  setupRegisteringUser() {
+    this.user.value = {
+      name: this.keycloaks.user.tokenParsed.name,
+      email: this.keycloaks.user.tokenParsed.email,
+      country: {
+        id: 75, // France
+      },
+      external_id: this.keycloaks.user.tokenParsed.sub,
+    }
   }
 
   async sync(method, endpoint = '', body = undefined, allowAnonymous = false) {
