@@ -64,15 +64,17 @@ export default class CustomerService extends ShopinvaderService {
   }
 
   async availableCustomers() {
-    return await this.sync(
-      'GET',
-      'available_customers',
-      null,
-      null,
-      response => {
-        this.users.value = response
-      }
-    )
+    if (!this.guest) {
+      return await this.sync(
+        'GET',
+        'available_customers',
+        null,
+        null,
+        response => {
+          this.users.value = response
+        }
+      )
+    }
   }
 
   async logout(type) {
@@ -80,7 +82,7 @@ export default class CustomerService extends ShopinvaderService {
 
     if (this.email) {
       // If we still have an auth, refresh the user
-      await this.sync('GET')
+      await this.get()
     } else {
       // If we do not have auth anymore, let's skip to guest user creation
       // This prevent an useless redirect

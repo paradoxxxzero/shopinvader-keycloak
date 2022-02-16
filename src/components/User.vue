@@ -68,7 +68,7 @@ emit("refresh")
           v-model="customerService.forUserId.value"
           @change="$emit('customerChanged')"
         >
-          <option>Myself: {{ user.name }}</option>
+          <option value>Myself: {{ user.name }}</option>
           <option v-for="user in users" :value="user.id" :key="user.id">{{ user.name }}</option>
         </select>
       </label>
