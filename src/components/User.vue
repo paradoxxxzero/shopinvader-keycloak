@@ -18,6 +18,7 @@ const logout = () => {
 }
 
 const user = computed(() => customerService.user.value)
+const users = computed(() => customerService.users.value)
 const submit = async e => {
   e.preventDefault()
 
@@ -26,10 +27,10 @@ const submit = async e => {
   }
 }
 
-const emit = defineEmits(["login", "register", "refresh"])
+
+const emit = defineEmits(["login", "register", "refresh", "customerChanged"])
 
 emit("refresh")
-
 </script>
 
 <template>
@@ -60,6 +61,18 @@ emit("refresh")
         <button v-if="registering" type="submit">Register</button>
       </fieldset>
     </form>
+    <div v-if="users.length">
+      <label>
+        Order as:
+        <select
+          v-model="customerService.forUserId.value"
+          @change="$emit('customerChanged')"
+        >
+          <option>Myself: {{ user.name }}</option>
+          <option v-for="user in users" :value="user.id" :key="user.id">{{ user.name }}</option>
+        </select>
+      </label>
+    </div>
     <div v-if="!registering">
       <button type="button" @click="$emit('refresh')">Refresh</button>
       <button v-if="customerService.isGuest" @click="$emit('login')">Login</button>

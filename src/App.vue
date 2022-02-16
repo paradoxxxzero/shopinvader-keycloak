@@ -28,6 +28,7 @@ const refresh = cart.get.bind(cart)
 const addItem = cart.addItem.bind(cart)
 const removeItem = cart.removeItem.bind(cart)
 const clear = cart.clear.bind(cart)
+const createCartForCustomer = cart.createForCustomer.bind(cart)
 
 const login = () => {
   // After login we redirect to main page
@@ -51,6 +52,7 @@ const register = () => {
     @login="login"
     @register="register"
     @refresh="refreshCustomer"
+    @customerChanged="createCartForCustomer"
   />
   <section v-if="!registering && state.value === 'success'">
     <Cart :cartService="cart" @refresh="refresh" @clear="clear" @remove-item="removeItem" />

@@ -14,6 +14,8 @@ export default class CustomerService extends ShopinvaderService {
   constructor(keycloaks, registering) {
     super(keycloaks)
     this.user = ref(ANONYMOUS_USER)
+    this.users = ref([])
+    this.forUserId = ref(null)
     this.registering = registering
   }
 
@@ -28,7 +30,16 @@ export default class CustomerService extends ShopinvaderService {
     }
   }
 
-  async sync(method, endpoint = '', body = undefined, allowAnonymous = false) {
+  async sync(
+    method,
+    endpoint = '',
+    body = undefined,
+    allowAnonymous = false,
+    onSuccess = response => {
+      this.user.value = response.data
+      return response
+    }
+  ) {
     const response = await this.fetch({
       service: 'customer',
       method,
@@ -36,21 +47,32 @@ export default class CustomerService extends ShopinvaderService {
       body,
       allowAnonymous,
     })
-
     if (response) {
-      this.user.value = response.data
+      return await onSuccess(response)
     }
     return response
   }
 
   async get() {
     if (this.email && !this.registering) {
-      await this.sync('GET')
+      await Promise.all([this.sync('GET'), this.availableCustomers()])
     }
   }
 
   async register() {
     return await this.sync('POST', 'create', this.user.value, true)
+  }
+
+  async availableCustomers() {
+    return await this.sync(
+      'GET',
+      'available_customers',
+      null,
+      null,
+      response => {
+        this.users.value = response
+      }
+    )
   }
 
   async logout(type) {

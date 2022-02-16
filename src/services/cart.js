@@ -18,6 +18,7 @@ export default class CartService extends ShopinvaderService {
     body = undefined,
     onSuccess = response => {
       this.cart.value = response.data ? response.data : INITIAL_CART
+      this.customerService.forUserId.value = response.data.shipping.address.id
       return response
     }
   ) {
@@ -78,6 +79,12 @@ export default class CartService extends ShopinvaderService {
 
   async clear() {
     return await this.sync('POST', 'clear')
+  }
+
+  async createForCustomer(productId) {
+    return await this.sync('POST', 'create_for', {
+      customer_id: this.customerService.forUserId.value,
+    })
   }
 
   get isEmpty() {
